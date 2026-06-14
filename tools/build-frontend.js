@@ -40,16 +40,12 @@ FILES.forEach((file) => {
 
   // Replace the localhost API_URL constant with the production URL
   if (file === "app.js") {
-    const before = content;
-    // Match: const API_URL = "http://localhost:5000";
-    content = content.replace(
-      /const API_URL\s*=\s*["'][^"']*["'];/,
-      `const API_URL = "${API_URL}";`
-    );
-    if (before === content) {
-      console.warn("⚠️  Could not find API_URL constant in app.js to rewrite.");
-    } else {
+    const regex = /const API_URL\s*=\s*["'][^"']*["'];/;
+    if (regex.test(content)) {
+      content = content.replace(regex, `const API_URL = "${API_URL}";`);
       console.log(`✅  Rewrote API_URL → ${API_URL} in app.js`);
+    } else {
+      console.warn("⚠️  Could not find API_URL constant in app.js to rewrite.");
     }
   }
 

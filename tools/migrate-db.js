@@ -115,24 +115,35 @@ async function migrateTable(table) {
 
   const client = await remotePool.connect();
   let inserted = 0;
+  const CHUNK_SIZE = 100;
   try {
     await client.query("BEGIN");
-    for (const row of rows) {
-      const values = table.columns.map((col) => {
-        const val = row[col];
-        if (val !== null && typeof val === "object" && !(val instanceof Date)) {
-          return JSON.stringify(val);
-        }
-        return val;
+    for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+      const chunk = rows.slice(i, i + CHUNK_SIZE);
+      const values = [];
+      const valueStrings = [];
+      
+      chunk.forEach((row) => {
+        const rowValuePlaceholders = [];
+        table.columns.forEach((col) => {
+          const val = row[col];
+          if (val !== null && typeof val === "object" && !(val instanceof Date)) {
+            values.push(JSON.stringify(val));
+          } else {
+            values.push(val);
+          }
+          rowValuePlaceholders.push(`$${values.length}`);
+        });
+        valueStrings.push(`(${rowValuePlaceholders.join(", ")})`);
       });
-      const placeholders = table.columns.map((_, i) => `$${i + 1}`).join(", ");
+
       const sql = `
         INSERT INTO ${table.name} (${table.columns.join(", ")})
-        VALUES (${placeholders})
+        VALUES ${valueStrings.join(", ")}
         ON CONFLICT (${table.conflict}) DO UPDATE SET ${table.update}
       `;
       await client.query(sql, values);
-      inserted++;
+      inserted += chunk.length;
     }
     await client.query("COMMIT");
   } catch (e) {

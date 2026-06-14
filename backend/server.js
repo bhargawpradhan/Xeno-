@@ -246,6 +246,8 @@ async function metricsFor(campaignId) {
   }, { sent: 0, delivered: 0, opened: 0, read: 0, clicked: 0, converted: 0, failed: 0 });
 }
 
+const MAX_DISPATCH_RETRIES = 5;
+
 async function dispatch(communicationId, customerPhone, customerName, campaignChannel, campaignMessage, retryCount = 0) {
   try {
     await pool.query('UPDATE communications SET status = $1, events = events || \'["sent"]\'::jsonb WHERE id = $2', ['sent', communicationId]);
@@ -262,9 +264,20 @@ async function dispatch(communicationId, customerPhone, customerName, campaignCh
     });
   } catch (error) {
     const newRetry = retryCount + 1;
+    if (newRetry > MAX_DISPATCH_RETRIES) {
+      // Give up — mark as failed and stop retrying
+      await pool.query(
+        'UPDATE communications SET status = $1, retry_count = $2, events = events || \'["failed"]\'::jsonb WHERE id = $3',
+        ['failed', newRetry, communicationId]
+      );
+      await logActivity(`Dispatch to ${customerName} permanently failed after ${MAX_DISPATCH_RETRIES} attempts. Simulator may be unavailable.`);
+      return;
+    }
+    // Exponential backoff: 1.2s, 2.4s, 4.8s, 9.6s, 19.2s
+    const delayMs = 1200 * Math.pow(2, retryCount);
     await pool.query('UPDATE communications SET status = $1, retry_count = $2 WHERE id = $3', ['queued_retry', newRetry, communicationId]);
-    await logActivity(`Failed dispatch to ${customerName}. Retrying in 1.2s... (Attempt ${newRetry})`);
-    setTimeout(() => dispatch(communicationId, customerPhone, customerName, campaignChannel, campaignMessage, newRetry), 1200);
+    await logActivity(`Failed dispatch to ${customerName}. Retrying in ${(delayMs / 1000).toFixed(1)}s... (Attempt ${newRetry}/${MAX_DISPATCH_RETRIES})`);
+    setTimeout(() => dispatch(communicationId, customerPhone, customerName, campaignChannel, campaignMessage, newRetry), delayMs);
   }
 }
 

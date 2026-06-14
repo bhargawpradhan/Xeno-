@@ -1,0 +1,19 @@
+# netlify.toml — Netlify deployment config for Xeno AI Mini CRM frontend
+#
+# Set the following environment variable in the Netlify dashboard:
+#   API_URL = https://xeno-crm-api.onrender.com   (your Render CRM API URL)
+
+[build]
+  command   = "node tools/build-frontend.js"
+  publish   = "dist"
+
+[build.environment]
+  # API_URL is set in the Netlify dashboard → Site Settings → Environment Variables.
+  # Do NOT commit secrets here.
+  NODE_VERSION = "18"
+
+# Serve index.html for all paths (single-page-app style)
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200

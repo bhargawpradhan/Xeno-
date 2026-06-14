@@ -1,0 +1,25 @@
+{
+  "name": "xeno-ai-campaign-copilot",
+  "version": "1.0.0",
+  "description": "AI-native mini CRM prototype for D2C campaign orchestration.",
+  "private": true,
+  "scripts": {
+    "dev": "node frontend/dev-server.js",
+    "backend": "node backend/server.js",
+    "simulator": "node simulator-service/server.js",
+    "start:all": "node tools/start-all.js",
+    "build": "node tools/build-frontend.js",
+    "migrate": "node tools/migrate-db.js"
+  },
+  "keywords": [
+    "crm",
+    "campaigns",
+    "ai",
+    "xeno"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "pg": "^8.21.0"
+  }
+}

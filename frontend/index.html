@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xeno AI Campaign Copilot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lobster+Two:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="scene" aria-hidden="true">
+      <div class="mesh mesh-one"></div>
+      <div class="mesh mesh-two"></div>
+      <div class="mesh mesh-three"></div>
+      <div class="orbit orbit-a"></div>
+      <div class="orbit orbit-b"></div>
+      <div class="beam beam-a"></div>
+      <div class="beam beam-b"></div>
+      <div class="spark-field"></div>
+    </div>
+
+    <main class="app-shell">
+      <nav class="topbar glass-panel">
+        <div class="brand">
+          <div class="brand-mark">X</div>
+          <div>
+            <span>Xeno</span>
+            <small>AI Campaign Copilot</small>
+          </div>
+        </div>
+        <div class="badge" id="apiStatusBadge" style="border-color: var(--rose); color: var(--rose); background: rgba(255, 95, 143, 0.1); display: flex; align-items: center; gap: 8px;">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--rose); box-shadow: 0 0 10px var(--rose);" id="apiStatusDot"></span>
+          <span id="apiStatusText">Demo Mode (Local Sim)</span>
+        </div>
+        <div class="nav-pills">
+          <button class="pill active" data-scroll="command">Command</button>
+          <button class="pill" data-scroll="segments">Segments</button>
+          <button class="pill" data-scroll="analytics">Analytics</button>
+          <button class="pill" data-scroll="architecture">Architecture</button>
+        </div>
+      </nav>
+
+      <section id="command" class="hero-grid">
+        <div class="hero-copy glass-panel tilt-card">
+          <span class="eyebrow">D2C CRM for shopper engagement</span>
+          <h1>Launch smarter campaigns from one AI command.</h1>
+          <p>
+            Segment shoppers, draft personalized WhatsApp/SMS/Email/RCS messages, simulate delivery callbacks,
+            and watch live engagement insights without touching a real messaging provider.
+          </p>
+          <div class="hero-actions">
+            <button class="primary-action" id="launchDemo">Launch comeback campaign</button>
+            <button class="secondary-action" id="seedData">Refresh data</button>
+          </div>
+          <div class="micro-stats">
+            <div><strong id="customerCount">0</strong><span>shoppers</span></div>
+            <div><strong id="orderCount">0</strong><span>orders</span></div>
+            <div><strong id="conversionLift">0%</strong><span>projected lift</span></div>
+          </div>
+          <div class="hero-signal">
+            <span>AI segment ready</span>
+            <span>Webhook simulator online</span>
+            <span>Realtime insights active</span>
+          </div>
+        </div>
+
+        <div class="copilot glass-panel tilt-card">
+          <div class="card-heading">
+            <div>
+              <span class="eyebrow">AI command center</span>
+              <h2>Intent to campaign</h2>
+            </div>
+            <span class="status-dot">Live</span>
+          </div>
+          <label for="intent">Marketer intent</label>
+          <textarea id="intent">Find inactive premium shoppers who spent above Rs 5000 and launch a friendly comeback offer on WhatsApp.</textarea>
+          <div class="control-row">
+            <select id="tone" aria-label="Campaign tone">
+              <option>Friendly</option>
+              <option>Premium</option>
+              <option>Urgent</option>
+              <option>Playful</option>
+            </select>
+            <select id="channel" aria-label="Channel">
+              <option>WhatsApp</option>
+              <option>SMS</option>
+              <option>Email</option>
+              <option>RCS</option>
+            </select>
+            <button id="generatePlan">Generate</button>
+          </div>
+          <div class="ai-output" id="aiOutput"></div>
+        </div>
+      </section>
+
+      <section class="workspace-grid">
+        <article id="segments" class="glass-panel segment-panel">
+          <div class="card-heading">
+            <div>
+              <span class="eyebrow">Audience intelligence</span>
+              <h2>Segment builder</h2>
+            </div>
+            <button class="icon-button" id="uploadSample" title="Import sample CSV">CSV</button>
+            <input id="csvInput" type="file" accept=".csv,text/csv" hidden />
+          </div>
+          <div class="filter-grid">
+            <label>Total spent<input id="spentFilter" type="range" min="0" max="12000" step="500" value="5000" /></label>
+            <label>Inactive days<input id="inactiveFilter" type="range" min="0" max="180" step="5" value="45" /></label>
+            <label>City
+              <select id="cityFilter">
+                <option>Any</option>
+                <option>Mumbai</option>
+                <option>Bengaluru</option>
+                <option>Delhi</option>
+                <option>Pune</option>
+              </select>
+            </label>
+          </div>
+          <div class="segment-result">
+            <div>
+              <strong id="segmentSize">0</strong>
+              <span>matched shoppers</span>
+            </div>
+            <div class="tag-row" id="segmentTags"></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Shopper</th><th>City</th><th>Spent</th><th>Score</th></tr>
+              </thead>
+              <tbody id="customerRows"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="glass-panel campaign-panel">
+          <div class="card-heading">
+            <div>
+              <span class="eyebrow">Personalized communication</span>
+              <h2>Campaign writer</h2>
+            </div>
+            <span class="badge" id="campaignStatus">Draft</span>
+          </div>
+          <input id="campaignTitle" value="We saved something special for you" />
+          <textarea id="messageBody">Hi {{name}}, your favorites miss you. Come back this week and enjoy 15% off your next order.</textarea>
+          <div class="preview-card">
+            <span id="previewChannel">WhatsApp</span>
+            <p id="messagePreview"></p>
+          </div>
+          <button class="primary-action full" id="sendCampaign">Send to segment</button>
+        </article>
+      </section>
+
+      <section id="analytics" class="analytics-grid">
+        <article class="glass-panel chart-panel">
+          <div class="card-heading">
+            <div>
+              <span class="eyebrow">Realtime lifecycle</span>
+              <h2>Delivery performance</h2>
+            </div>
+            <span class="badge" id="activeCampaign">No campaign</span>
+          </div>
+          <div class="metric-grid">
+            <div class="metric"><strong id="sentMetric">0</strong><span>Sent</span></div>
+            <div class="metric"><strong id="deliveredMetric">0</strong><span>Delivered</span></div>
+            <div class="metric"><strong id="openedMetric">0</strong><span>Opened</span></div>
+            <div class="metric"><strong id="readMetric">0</strong><span>Read</span></div>
+            <div class="metric"><strong id="clickedMetric">0</strong><span>Clicked</span></div>
+            <div class="metric"><strong id="convertedMetric">0</strong><span>Orders</span></div>
+          </div>
+          <div class="bars" id="bars"></div>
+        </article>
+
+        <article class="glass-panel insight-panel">
+          <div class="card-heading">
+            <div>
+              <span class="eyebrow">AI insights</span>
+              <h2>What the marketer should do next</h2>
+            </div>
+          </div>
+          <div id="insights" class="insight-list"></div>
+          <div class="activity-feed" id="activityFeed"></div>
+        </article>
+      </section>
+
+      <section id="architecture" class="glass-panel architecture">
+        <div>
+          <span class="eyebrow">System design</span>
+          <h2>Two-service callback architecture</h2>
+          <p>
+            The CRM owns customer data, segments, campaigns, communications, and analytics. The channel simulator
+            acts like WhatsApp/SMS/Email/RCS providers: it accepts sends, waits, then posts delivery events back
+            to the CRM receipt API.
+          </p>
+        </div>
+        <div class="flow">
+          <div>CRM API</div>
+          <span>Campaign jobs</span>
+          <div>Channel simulator</div>
+          <span>Webhook receipts</span>
+          <div>Analytics + insights</div>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

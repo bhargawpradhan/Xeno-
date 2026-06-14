@@ -1,0 +1,60 @@
+# render.yaml — Render Blueprint for Xeno AI Mini CRM
+# Deploys: PostgreSQL DB + CRM API + Channel Simulator
+#
+# Instructions:
+#   1. Push this repo to GitHub.
+#   2. Go to https://dashboard.render.com → New → Blueprint
+#   3. Connect your GitHub repo → Render will provision everything below.
+#   4. After the DB is ready, copy its Internal Database URL and set it as
+#      DATABASE_URL on the xeno-crm-api service (auto-linked below).
+#   5. Set MISTRAL_API_KEY manually in the Render dashboard for xeno-crm-api.
+
+databases:
+  - name: xeno-postgres
+    databaseName: xeno_crm
+    user: xeno_user
+    plan: free
+
+services:
+  # ── Channel Simulator ────────────────────────────────────────────────────
+  - type: web
+    name: xeno-channel-simulator
+    runtime: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "node simulator-service/server.js"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        generateValue: false
+        value: "5100"
+
+  # ── CRM API Backend ───────────────────────────────────────────────────────
+  - type: web
+    name: xeno-crm-api
+    runtime: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "node backend/server.js"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: xeno-postgres
+          property: connectionString
+      - key: MISTRAL_API_KEY
+        sync: false          # Set manually in Render dashboard after deploy
+      - key: PUBLIC_URL
+        fromService:
+          name: xeno-crm-api
+          type: web
+          property: host
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: SIMULATOR_URL
+        fromService:
+          name: xeno-channel-simulator
+          type: web
+          property: host
+          envVarKey: RENDER_EXTERNAL_URL

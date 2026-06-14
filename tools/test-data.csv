@@ -1,0 +1,11 @@
+id,name,email,phone,city,tags,totalSpent,totalOrders,inactiveDays,engagementScore
+cust_csv_1,Priya Sharma,priya@example.com,+91 9812345678,Mumbai,premium|fashion,8500,6,30,82
+cust_csv_2,Rahul Gupta,rahul@example.com,+91 9876543210,Delhi,repeat|sale-sensitive,3200,3,60,55
+cust_csv_3,Ananya Patel,ananya@example.com,+91 9090909090,Bengaluru,coffee-lover|beauty,12000,9,10,91
+cust_csv_4,Vikram Nair,vikram@example.com,+91 9988776655,Pune,inactive,1800,2,90,38
+cust_csv_5,Sita Reddy,sita@example.com,+91 9111222333,Mumbai,premium|repeat,22000,14,5,96
+cust_csv_6,Aryan Joshi,aryan@example.com,+91 9444555666,Delhi,fashion|beauty,5400,4,45,67
+cust_csv_7,Kavya Iyer,kavya@example.com,+91 9777888999,Bengaluru,coffee-lover,950,1,120,22
+cust_csv_8,Deepak Mehta,deepak@example.com,+91 9222333444,Pune,sale-sensitive|repeat,7100,5,20,78
+cust_csv_9,Shruti Singh,shruti@example.com,+91 9666777888,Mumbai,premium|inactive,9800,7,75,48
+cust_csv_10,Nikhil Das,nikhil@example.com,+91 9333444555,Delhi,fashion,4600,3,15,83

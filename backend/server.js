@@ -28,8 +28,10 @@ try {
 const PORT = Number(process.env.PORT || 5000);
 const SIMULATOR_URL = process.env.SIMULATOR_URL || (process.env.SIMULATOR_HOST ? `https://${process.env.SIMULATOR_HOST}/send` : "http://localhost:5100/send");
 
+const dbUrl = process.env.DATABASE_URL || "postgres://postgres:password@127.0.0.1:5432/xeno_crm";
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || "postgres://postgres:password@127.0.0.1:5432/xeno_crm"
+  connectionString: dbUrl,
+  ssl: (dbUrl.includes("localhost") || dbUrl.includes("127.0.0.1")) ? false : { rejectUnauthorized: false }
 });
 
 // Initialize database schema

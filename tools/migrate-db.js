@@ -50,8 +50,14 @@ if (LOCAL_URL === REMOTE_URL) {
   process.exit(1);
 }
 
-const localPool  = new Pool({ connectionString: LOCAL_URL });
-const remotePool = new Pool({ connectionString: REMOTE_URL });
+const localPool  = new Pool({
+  connectionString: LOCAL_URL,
+  ssl: (LOCAL_URL.includes("localhost") || LOCAL_URL.includes("127.0.0.1")) ? false : { rejectUnauthorized: false }
+});
+const remotePool = new Pool({
+  connectionString: REMOTE_URL,
+  ssl: (REMOTE_URL.includes("localhost") || REMOTE_URL.includes("127.0.0.1")) ? false : { rejectUnauthorized: false }
+});
 
 // Tables in dependency order (insert parents before children)
 const TABLES = [
@@ -64,7 +70,7 @@ const TABLES = [
   },
   {
     name: "orders",
-    columns: ["id", "customer_id", "total_amount", "status", "ordered_at"],
+    columns: ["id", "customer_id", "total_amount", "status"],
     conflict: "id",
     update: "customer_id=EXCLUDED.customer_id, total_amount=EXCLUDED.total_amount, status=EXCLUDED.status"
   },
@@ -112,7 +118,13 @@ async function migrateTable(table) {
   try {
     await client.query("BEGIN");
     for (const row of rows) {
-      const values = table.columns.map((col) => row[col]);
+      const values = table.columns.map((col) => {
+        const val = row[col];
+        if (val !== null && typeof val === "object" && !(val instanceof Date)) {
+          return JSON.stringify(val);
+        }
+        return val;
+      });
       const placeholders = table.columns.map((_, i) => `$${i + 1}`).join(", ");
       const sql = `
         INSERT INTO ${table.name} (${table.columns.join(", ")})

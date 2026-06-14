@@ -26,7 +26,7 @@ try {
 }
 
 const PORT = Number(process.env.PORT || 5000);
-const SIMULATOR_URL = process.env.SIMULATOR_URL || "http://localhost:5100/send";
+const SIMULATOR_URL = process.env.SIMULATOR_URL || (process.env.SIMULATOR_HOST ? `https://${process.env.SIMULATOR_HOST}/send` : "http://localhost:5100/send");
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || "postgres://postgres:password@127.0.0.1:5432/xeno_crm"
@@ -255,7 +255,7 @@ async function dispatch(communicationId, customerPhone, customerName, campaignCh
         recipient: customerPhone,
         channel: campaignChannel,
         message: campaignMessage.replaceAll("{{name}}", customerName),
-        callbackUrl: `${process.env.PUBLIC_URL || `http://localhost:${PORT}`}/webhooks/channel-events`
+        callbackUrl: `${process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`}/webhooks/channel-events`
       })
     });
   } catch (error) {
